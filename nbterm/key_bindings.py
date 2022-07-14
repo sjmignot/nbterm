@@ -1,10 +1,16 @@
 from prompt_toolkit.filters import Condition
+from prompt_toolkit.key_binding import KeyBindings as KeBi
 
 
 class KeyBindings:
 
     edit_mode: bool
     help_mode: bool
+
+    # Handling of escape.
+    key_bindings = KeBi()
+    handle = key_bindings.add
+    handle("escape", eager=True)
 
     def bind_keys(self):
         @Condition
@@ -22,6 +28,49 @@ class KeyBindings:
         @Condition
         def not_help_mode() -> bool:
             return not self.help_mode
+
+        @self.key_bindings.add("c-t", filter=edit_mode)
+        def ce_mode_t(event):
+            # self.cell_edit_mode = True
+            self.edit_result_in_editor()
+
+        @self.key_bindings.add("c-o", filter=command_mode)
+        async def ce_mode_ed(event):
+            self.enter_cell()
+            self.edit_in_editor()
+
+        @self.key_bindings.add("c-w", filter=edit_mode)
+        @self.key_bindings.add("c-o", filter=edit_mode)
+        def ce_mode_w(event):
+            self.quitting = False
+            self.enter_cell()
+            self.edit_in_editor()
+            self.exit_cell()
+            self.enter_cell()
+            self.save()
+
+        @self.key_bindings.add("c-f", filter=edit_mode)
+        def ce_mode_f(event):
+            self.run_in_console()
+            self.update_layout()
+
+        @self.key_bindings.add("c-e", filter=edit_mode)
+        async def e_mod_c_e(event):
+            self.quitting = False
+            await self.queue_run_cell()
+
+        @self.key_bindings.add("c-s", filter=edit_mode)
+        def e_mod_c_s(event):
+            self.quitting = False
+            self.save()
+
+        @self.key_bindings.add("c-r", filter=edit_mode)
+        async def e_mod_c_r(event):
+            self.edit_mode = False
+            self.exit_cell()
+            await self.queue_run_cell(and_select_below=True)
+            self.quitting = False
+            self.enter_cell()
 
         @self.key_bindings.add("enter", filter=help_mode)
         @self.key_bindings.add("c-q", filter=help_mode)
@@ -44,6 +93,7 @@ class KeyBindings:
             self.show_help()
 
         @self.key_bindings.add("c-q", filter=not_help_mode)
+        @self.key_bindings.add("c-x", filter=not_help_mode)
         async def c_q(event):
             await self.exit()
 
@@ -52,8 +102,9 @@ class KeyBindings:
             self.quitting = False
             self.save()
 
-        @self.key_bindings.add("enter", filter=command_mode)
-        def enter_cell(event):
+        # @self.key_bindings.add("enter", filter=command_mode)
+        @self.key_bindings.add("e", filter=command_mode)
+        def e(event):
             self.quitting = False
             self.enter_cell()
 
@@ -62,12 +113,18 @@ class KeyBindings:
             self.quitting = False
             self.exit_cell()
 
+        @self.key_bindings.add("f", filter=command_mode)
+        def f(event):
+            self.toggle_fold()
+
         @self.key_bindings.add("up", filter=command_mode)
+        @self.key_bindings.add("k", filter=command_mode)
         def up(event):
             self.quitting = False
             self.go_up()
 
         @self.key_bindings.add("down", filter=command_mode)
+        @self.key_bindings.add("j", filter=command_mode)
         def down(event):
             self.quitting = False
             self.go_down()
@@ -82,12 +139,17 @@ class KeyBindings:
             self.quitting = False
             self.move_down()
 
+        @self.key_bindings.add("c-l", filter=command_mode)
+        def c_l(event):
+            self.quitting = False
+            self.clear_all_output()
+
         @self.key_bindings.add("l", filter=command_mode)
         def l(event):  # noqa
             self.quitting = False
             self.clear_output()
 
-        @self.key_bindings.add("m", filter=command_mode)
+        @self.key_bindings.add("r", filter=command_mode)
         def m(event):
             self.quitting = False
             self.markdown_cell()
@@ -97,17 +159,15 @@ class KeyBindings:
             self.quitting = False
             self.code_cell()
 
-        @self.key_bindings.add("r", filter=command_mode)
-        def r(event):
-            self.quitting = False
-            self.raw_cell()
-
         @self.key_bindings.add("c-e", filter=command_mode)
+        @self.key_bindings.add("enter", filter=command_mode)
         async def c_e(event):
             self.quitting = False
             await self.queue_run_cell()
 
         @self.key_bindings.add("c-r", filter=command_mode)
+        # ALT + ENTER (works as shift enter either)
+        @self.key_bindings.add("escape", "enter", filter=command_mode)
         async def c_r(event):
             self.quitting = False
             await self.queue_run_cell(and_select_below=True)
@@ -141,3 +201,61 @@ class KeyBindings:
         def b(event):
             self.quitting = False
             self.insert_cell(below=True)
+
+        @self.key_bindings.add("c-p", filter=command_mode)
+        async def c_p(event):
+            await self.run_all()
+
+        @self.key_bindings.add("c-g", filter=command_mode)
+        def G(event):
+            self.goto_last_cell()
+
+        @self.key_bindings.add("g", "g", filter=command_mode)
+        def k_1_g(event):
+            self.goto_first_cell()
+
+        @self.key_bindings.add("c-f", filter=command_mode)
+        def c_f(event):
+            self.focus_current_cell()
+
+        @self.key_bindings.add("/", filter=command_mode)
+        def search(event):
+            self.nb_search()
+
+        @self.key_bindings.add("n", filter=command_mode)
+        def n(event):
+            self.nb_repeat_search()
+
+        @self.key_bindings.add("N", filter=command_mode)
+        def c_n(event):
+            self.nb_search_backwards()
+
+        @self.key_bindings.add("c-j", filter=command_mode)
+        def c_j(event):
+            self.nb_scroll_down()
+
+        @self.key_bindings.add("c-k", filter=command_mode)
+        def c_k(event):
+            self.nb_scroll_up()
+
+        @self.key_bindings.add("right", filter=command_mode)
+        def c_m(event):
+            self.nb_scroll_right()
+
+        @self.key_bindings.add("left", filter=command_mode)
+        def c_left(event):
+            self.nb_scroll_left()
+
+        @self.key_bindings.add("c-b", filter=command_mode)
+        def c_semi(event):
+            self.nb_scroll_reset()
+
+        @self.key_bindings.add("m", "<any>", filter=command_mode)
+        def set_m(event):
+            skey = ord(event.key_sequence[1].key)
+            self.nb_set_mark(skey)
+
+        @self.key_bindings.add("'", "<any>", filter=command_mode)
+        def goto_m(event):
+            skey = ord(event.key_sequence[1].key)
+            self.nb_goto_mark(skey)

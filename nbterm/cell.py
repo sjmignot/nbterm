@@ -236,6 +236,12 @@ class Cell:
             src_list[-1] = src_list[-1][:-1]
         self.json["source"] = src_list
 
+    def open_in_editor(self):
+        self.input_buffer.open_in_editor()
+        self.notebook.dirty = True
+        self.ext_edit = True
+        log("-- EDIT IN EDITOR END --")
+
     async def run(self):
         self.clear_output()
         if self.json["cell_type"] == "code":

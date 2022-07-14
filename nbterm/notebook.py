@@ -392,6 +392,10 @@ class Notebook(Help, Format, KeyBindings):
             self.focus(self.current_cell_idx, update_layout=True)
             self.app.invalidate()
 
+    def edit_in_editor(self):
+        self.edit_mode = True
+        self.current_cell.open_in_editor()
+
     async def _show(self):
         if self.kd:
             asyncio.create_task(self.kd.start())
