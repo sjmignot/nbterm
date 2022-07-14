@@ -103,7 +103,7 @@ class KeyBindings:
             self.save()
 
         # @self.key_bindings.add("enter", filter=command_mode)
-        @self.key_bindings.add("e", filter=command_mode)
+        @self.key_bindings.add("i", filter=command_mode)
         def e(event):
             self.quitting = False
             self.enter_cell()
@@ -154,11 +154,6 @@ class KeyBindings:
             self.quitting = False
             self.markdown_cell()
 
-        @self.key_bindings.add("o", filter=command_mode)
-        def o(event):
-            self.quitting = False
-            self.code_cell()
-
         @self.key_bindings.add("c-e", filter=command_mode)
         @self.key_bindings.add("enter", filter=command_mode)
         async def c_e(event):
@@ -192,6 +187,19 @@ class KeyBindings:
             self.quitting = False
             self.paste_cell(below=True)
 
+
+        @self.key_bindings.add("o", filter=command_mode)
+        async def ce_mode_ed(event):
+            self.insert_cell(below=True)
+            self.enter_cell()
+            self.edit_mode = True
+
+        @self.key_bindings.add("O", filter=command_mode)
+        async def ce_mode_ed(event):
+            self.insert_cell()
+            self.enter_cell()
+            self.edit_mode = True
+
         @self.key_bindings.add("a", filter=command_mode)
         def a(event):
             self.quitting = False
@@ -206,7 +214,7 @@ class KeyBindings:
         async def c_p(event):
             await self.run_all()
 
-        @self.key_bindings.add("c-g", filter=command_mode)
+        @self.key_bindings.add("G", filter=command_mode)
         def G(event):
             self.goto_last_cell()
 
