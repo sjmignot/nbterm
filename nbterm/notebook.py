@@ -356,6 +356,10 @@ class Notebook(Help, Format, KeyBindings):
         self.cells.insert(idx, Cell(self))
         self.focus(idx, update_layout=True)
 
+    def edit_result_in_editor(self):
+        self.edit_mode = True
+        self.current_cell.open_result_in_editor()
+
     def output_hook(self, msg: Dict[str, Any]):
         msg_id = msg["parent_header"]["msg_id"]
         execution_count = self.msg_id_2_execution_count[msg_id]

@@ -159,6 +159,9 @@ class KeyBindings:
         async def c_e(event):
             self.quitting = False
             await self.queue_run_cell()
+            self.insert_cell(below=True)
+            self.enter_cell()
+            self.edit_mode = True
 
         @self.key_bindings.add("c-r", filter=command_mode)
         # ALT + ENTER (works as shift enter either)

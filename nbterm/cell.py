@@ -240,7 +240,6 @@ class Cell:
         self.input_buffer.open_in_editor()
         self.notebook.dirty = True
         self.ext_edit = True
-        log("-- EDIT IN EDITOR END --")
 
     async def run(self):
         self.clear_output()
