@@ -154,14 +154,16 @@ class KeyBindings:
             self.quitting = False
             self.markdown_cell()
 
-        @self.key_bindings.add("c-e", filter=command_mode)
         @self.key_bindings.add("enter", filter=command_mode)
         async def c_e(event):
             self.quitting = False
             await self.queue_run_cell()
-            self.insert_cell(below=True)
-            self.enter_cell()
-            self.edit_mode = True
+            if self.current_cell_idx == len(self.cells) - 1:
+                self.insert_cell(below=True)
+                self.enter_cell()
+                self.edit_mode = True
+            else:
+                self.go_down()
 
         @self.key_bindings.add("c-r", filter=command_mode)
         # ALT + ENTER (works as shift enter either)

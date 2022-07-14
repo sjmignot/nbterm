@@ -429,3 +429,9 @@ class Notebook(Help, Format, KeyBindings):
 
     def go_down(self):
         self.focus(self.current_cell_idx + 1, no_change=True)
+
+    def goto_last_cell(self):
+        self.focus(len(self.cells) - 1)
+
+    def goto_first_cell(self):
+        self.focus(0)
