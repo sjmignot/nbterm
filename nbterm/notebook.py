@@ -323,6 +323,17 @@ class Notebook(Help, Format, KeyBindings):
             idx -= 1
         self.focus(idx, update_layout=True)
 
+    def delete_cell(self, idx: Optional[int] = None):
+        self.dirty = True
+        if idx is None:
+            idx = self.current_cell_idx
+        self.cells.pop(idx)
+        if not self.cells:
+            self.cells = [Cell(self)]
+        elif idx == len(self.cells):
+            idx -= 1
+        self.focus(idx, update_layout=True)
+
     def copy_cell(self, idx: Optional[int] = None):
         if idx is None:
             idx = self.current_cell_idx

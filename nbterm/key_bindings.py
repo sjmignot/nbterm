@@ -167,6 +167,11 @@ class KeyBindings:
             self.quitting = False
             await self.queue_run_cell(and_select_below=True)
 
+        @self.key_bindings.add("d", "d", filter=command_mode)
+        def dd(event):
+            self.quitting = False
+            self.delete_cell()
+
         @self.key_bindings.add("x", filter=command_mode)
         def x(event):
             self.quitting = False
@@ -186,7 +191,6 @@ class KeyBindings:
         def v(event):
             self.quitting = False
             self.paste_cell(below=True)
-
 
         @self.key_bindings.add("o", filter=command_mode)
         async def ce_mode_ed(event):
